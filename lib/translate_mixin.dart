@@ -20,4 +20,28 @@ mixin I18nTranslateMixin {
       params: params,
     );
   }
+
+  String translateCurrency(
+    double amount, {
+    String format = 'R\$ #,##0.00',
+    Locale? locale,
+  }) {
+    return I18nTranslate.instance.translateCurrency(
+      amount,
+      format: format,
+      locale: locale,
+    );
+  }
+
+  String translateDate(
+    DateTime date, {
+    String format = 'dd/MM/yyyy',
+    Locale? locale,
+  }) {
+    return I18nTranslate.instance.translateDate(
+      date,
+      format: format,
+      locale: locale,
+    );
+  }
 }

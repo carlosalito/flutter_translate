@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/yaml_utils.dart';
+import 'package:intl/intl.dart';
 
 part 'translate_loader.dart';
 part 'translate_mixin.dart';
@@ -74,5 +75,25 @@ class I18nTranslate {
 
     final String value = (node[parts.last] ?? key).replaceAll('\\n', '\n');
     return _applyParams(value, params);
+  }
+
+  String translateCurrency(
+    double amount, {
+    String format = 'R\$ #,##0.00',
+    Locale? locale,
+  }) {
+    final Locale internalLocale = locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+    final NumberFormat formatter = NumberFormat(format, internalLocale.toString());
+    return formatter.format(amount);
+  }
+
+  String translateDate(
+    DateTime date, {
+    String format = 'dd/MM/yyyy',
+    Locale? locale,
+  }) {
+    final Locale internalLocale = locale ?? WidgetsBinding.instance.platformDispatcher.locale;
+    final DateFormat formatter = DateFormat(format, internalLocale.toString());
+    return formatter.format(date);
   }
 }

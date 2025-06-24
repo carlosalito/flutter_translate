@@ -23,11 +23,8 @@ class I18nTranslate {
     for (int index = 0; index < allDecodedMap.length; index++) {
       final Map<String, dynamic> decodedMap = allDecodedMap[index];
       final TranslateLoader loader = _loaderList[index];
-      if (dict[loader.dictId] == null) {
-        dict[loader.dictId] = {};
-      }
-
-      Map.from(dict[loader.dictId]).addAll(decodedMap);
+      dict.putIfAbsent(loader.dictId, () => {});
+      dict[loader.dictId]!.addAll(decodedMap);
     }
 
     return dict;
@@ -73,7 +70,9 @@ class I18nTranslate {
       return (_dictionary[dictId][key] ?? key).replaceAll('\\n', '\n');
     }
 
-    Map<String, dynamic> node = _dictionary[dictId] ?? <String, dynamic>{};
+    final rawNode = _dictionary[dictId];
+    Map<String, dynamic> node = rawNode is Map ? Map<String, dynamic>.from(rawNode) : <String, dynamic>{};
+
     if (node.entries.isEmpty) {
       return key;
     }

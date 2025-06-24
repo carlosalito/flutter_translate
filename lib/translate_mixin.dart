@@ -1,8 +1,8 @@
 part of 'translate.dart';
 
 mixin I18nTranslateMixin {
-  String _base = '';
-  String _dictId = 'default';
+  late final String _base;
+  late final String _dictId;
 
   void setBaseTranslate({String? base, String? dictId}) {
     _base = base ?? '';
@@ -13,10 +13,11 @@ mixin I18nTranslateMixin {
     String key, {
     bool useBaseTranslate = true,
     Map<String, String>? params,
+    String? dictId,
   }) {
     return I18nTranslate.instance.translate(
       '${useBaseTranslate ? '$_base.' : ''}$key',
-      dictId: _dictId,
+      dictId: dictId ?? _dictId,
       params: params,
     );
   }

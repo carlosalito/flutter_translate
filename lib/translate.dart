@@ -10,17 +10,32 @@ class I18nTranslate {
   static late I18nTranslate _instance;
 
   static I18nTranslate get instance => _instance;
-  static late TranslateLoader _loader;
+  static late List<TranslateLoader> _loaderList;
 
   I18nTranslate._internal(Map<String, dynamic> dict) {
     _dictionary.addAll(dict);
   }
 
-  static Future<void> create({required TranslateLoader loader}) async {
-    _loader = loader;
-    final Map<String, dynamic> decodedMap = await loader.load();
+  static Future<Map<String, dynamic>> getDictFromLoaders() async {
+    final List<Map<String, dynamic>> allDecodedMap = await Future.wait(_loaderList.map((loader) => loader.load()));
+    final Map<String, dynamic> dict = <String, dynamic>{};
 
-    final Map<String, dynamic> dict = <String, dynamic>{loader.dictId: decodedMap};
+    for (int index = 0; index < allDecodedMap.length; index++) {
+      final Map<String, dynamic> decodedMap = allDecodedMap[index];
+      final TranslateLoader loader = _loaderList[index];
+      if (dict[loader.dictId] == null) {
+        dict[loader.dictId] = {};
+      }
+
+      Map.from(dict[loader.dictId]).addAll(decodedMap);
+    }
+
+    return dict;
+  }
+
+  static Future<void> create({required List<TranslateLoader> loaders}) async {
+    _loaderList = loaders;
+    final Map<String, dynamic> dict = await getDictFromLoaders();
 
     if (_dictionary.entries.isEmpty) {
       _instance = I18nTranslate._internal(dict);
@@ -30,12 +45,8 @@ class I18nTranslate {
   }
 
   static Future<void> refresh(Locale locale) async {
-    final TranslateLoader newLoader = _loader.copyWith(locale: locale);
-    final Map<String, dynamic> decodedMap = await newLoader.load();
-    final Map<String, dynamic> dict = <String, dynamic>{newLoader.dictId: decodedMap};
-
-    _dictionary.remove(newLoader.dictId);
-    _dictionary.addAll(dict);
+    final newLoaderList = _loaderList.map((loader) => loader.copyWith(locale: locale)).toList();
+    create(loaders: newLoaderList);
   }
 
   String _applyParams(String value, Map<String, String>? params) {
